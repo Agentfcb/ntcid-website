@@ -289,13 +289,12 @@ body {
 }
 
 .service-icon {
-  font-size: 3rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
 }
 
 .service-icon img {
-  width: 64px;
-  height: 64px;
+  width: 48px;
+  height: 48px;
   object-fit: contain;
 }
 
@@ -370,8 +369,8 @@ body {
 }
 
 .advantage-icon {
-  width: 80px;
-  height: 80px;
+  width: 60px;
+  height: 60px;
   background: linear-gradient(135deg, #3b82f6, #8b5cf6);
   border-radius: 50%;
   display: flex;
@@ -382,8 +381,8 @@ body {
 }
 
 .advantage-icon img {
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   object-fit: contain;
 }
 
@@ -423,8 +422,8 @@ body {
 }
 
 .contact-icon img {
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
   object-fit: contain;
 }
 
@@ -635,9 +634,9 @@ body {
     font-size: 2.5rem;
   }
   
-  .service-icon img {
-    width: 48px;
-    height: 48px;
+   .service-icon img {
+    width: 40px;
+    height: 40px;
   }
   
   .service-card h3 {
@@ -679,13 +678,13 @@ body {
   }
   
   .advantage-icon {
-    width: 60px;
-    height: 60px;
+    width: 50px;
+    height: 50px;
   }
   
   .advantage-icon img {
-    width: 30px;
-    height: 30px;
+    width: 25px;
+    height: 25px;
   }
   
   /* Contact Mobile */
@@ -749,3 +748,29 @@ body {
     font-size: 0.9rem;
   }
 }
+
+.footer-icon {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.form-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.btn-icon {
+  width: 18px;
+  height: 18px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.contact-icon img {
+    width: 20px;
+    height: 20px;
+  }
