@@ -6,5 +6,5 @@ export default defineConfig({
   server: {
     port: 3000
   },
-  base: '/ntcid-website/'  // Замени на имя своего репозитория
+  base: '/ntcid-website/'
 })
