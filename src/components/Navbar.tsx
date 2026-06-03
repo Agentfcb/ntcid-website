@@ -14,35 +14,54 @@ const Navbar: React.FC = () => {
   ]
 
   return (
-    <nav className="navbar">
-      <div className="container navbar-content">
-        <Link to="/" className="logo">
-          <span>НТЦ</span> НКИД
-        </Link>
-        
-        <ul className="nav-links">
+    <>
+      <nav className="navbar">
+        <div className="container navbar-content">
+          <Link to="/" className="logo" onClick={() => setMobileMenuOpen(false)}>
+            <span>НТЦ</span> НКИД
+          </Link>
+          
+          <ul className="nav-links">
+            {navLinks.map((link: NavLink) => (
+              <li key={link.path}>
+                <Link 
+                  to={link.path} 
+                  className={location.pathname === link.path ? 'active' : ''}
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+
+          <button 
+            className={`mobile-menu ${mobileMenuOpen ? 'active' : ''}`} 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            <span></span>
+            <span></span>
+            <span></span>
+          </button>
+        </div>
+      </nav>
+
+      {/* Mobile Navigation */}
+      <div className={`mobile-nav ${mobileMenuOpen ? 'active' : ''}`}>
+        <ul>
           {navLinks.map((link: NavLink) => (
             <li key={link.path}>
               <Link 
                 to={link.path} 
                 className={location.pathname === link.path ? 'active' : ''}
+                onClick={() => setMobileMenuOpen(false)}
               >
                 {link.label}
               </Link>
             </li>
           ))}
         </ul>
-
-        <div 
-          className="mobile-menu" 
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        >
-          <span></span>
-          <span></span>
-          <span></span>
-        </div>
       </div>
-    </nav>
+    </>
   )
 }
 
