@@ -36,11 +36,11 @@ const Footer: React.FC = () => {
             <h4>Контакты</h4>
             <p>
               <img src={phoneIcon} alt="Телефон" className="footer-icon" />
-              +7 (XXX) XXX-XX-XX
+              +7 (910) 775-72-50
             </p>
             <p>
               <img src={emailIcon} alt="Email" className="footer-icon" />
-              info@ntcid.ru
+              Hizd.nk@gmail.com
             </p>
             <p>
               <img src={clockIcon} alt="Время" className="footer-icon" />

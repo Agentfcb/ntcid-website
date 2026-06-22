@@ -19,12 +19,12 @@ const Contact: React.FC = () => {
     {
       icon: phoneIcon,
       title: 'Телефон',
-      content: '+7 (XXX) XXX-XX-XX'
+      content: '+7 (910) 775-72-50'
     },
     {
       icon: emailIcon,
       title: 'Email',
-      content: 'info@ntcid.ru'
+      content: 'Hizd.nk@gmail.com'
     },
     {
       icon: clockIcon,
@@ -66,9 +66,9 @@ const Contact: React.FC = () => {
                   <strong>ООО НТЦ «НКИД»</strong><br />
                   Научно-технический центр<br />
                   «Неразрушающий контроль и диагностика»<br />
-                  ИНН: XXXXXXXXXX<br />
-                  КПП: XXXXXXXXX<br />
-                  ОГРН: XXXXXXXXXXXXX
+                  ИНН: 3329088935<br />
+                  КПП: 332901001<br />
+                  ОГРН: 1173328000086
                 </p>
               </div>
             </div>

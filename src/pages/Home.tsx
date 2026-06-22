@@ -136,14 +136,29 @@ const Home: React.FC = () => {
         </div>
       </section>
 
+      {/* CTA СЕКЦИЯ */}
       <section className="section" style={{ background: '#1e293b' }}>
         <div className="container">
-          <h2 className="section-title">Готовы начать проект?</h2>
-          <p className="section-subtitle">
-            Свяжитесь с нами для консультации и расчета стоимости
-          </p>
-          <div style={{ textAlign: 'center' }}>
-            <Link to="/contact" className="btn">Оставить заявку</Link>
+          <div style={{ 
+            textAlign: 'center', 
+            padding: '3rem 2rem',
+            background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
+            borderRadius: '16px'
+          }}>
+            <h2 style={{ fontSize: '2rem', marginBottom: '1rem', color: 'white' }}>
+              Готовы начать сотрудничество?
+            </h2>
+            <p style={{ fontSize: '1.1rem', marginBottom: '2rem', color: '#e2e8f0', maxWidth: '600px', margin: '0 auto 2rem' }}>
+              Оставьте заявку прямо сейчас и получите бесплатную консультацию наших специалистов
+            </p>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+              <Link to="/contact" className="btn" style={{ background: 'white', color: '#3b82f6' }}>
+                Оставить заявку
+              </Link>
+              <a href="tel:+79107757250" className="btn btn-secondary" style={{ borderColor: 'white', color: 'white' }}>
+                Позвонить нам
+              </a>
+            </div>
           </div>
         </div>
       </section>

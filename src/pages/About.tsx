@@ -45,7 +45,7 @@ const About: React.FC = () => {
   ]
 
   const stats: Stat[] = [
-    { number: '2017', label: 'Год основания' },
+    { number: '2014', label: 'Год основания' },
     { number: '1000+', label: 'Выполненных проектов' },
     { number: '15', label: 'Аттестованных экспертов' },
     { number: '24/7', label: 'Поддержка клиентов' }
@@ -145,6 +145,75 @@ const About: React.FC = () => {
                 <p style={{ color: '#94a3b8' }}>{item.desc}</p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* НОВАЯ СЕКЦИЯ С ИНФОРМАЦИЕЙ */}
+      <section className="section" style={{ background: '#1e293b' }}>
+        <div className="container">
+          <h2 className="section-title">Что мы предлагаем</h2>
+          <p className="section-subtitle">
+            Полный комплекс услуг в области неразрушающего контроля и диагностики
+          </p>
+          
+          <div style={{ display: 'grid', gap: '2rem', marginTop: '3rem' }}>
+            <div style={{ 
+              background: '#0f172a', 
+              padding: '2rem', 
+              borderRadius: '12px',
+              border: '1px solid #334155'
+            }}>
+              <h3 style={{ color: '#3b82f6', marginBottom: '1rem', fontSize: '1.3rem' }}>
+                🔍 Неразрушающий контроль
+              </h3>
+              <ul style={{ color: '#94a3b8', lineHeight: '2', paddingLeft: '1.5rem' }}>
+                <li>Ультразвуковой контроль сварных швов и материалов</li>
+                <li>Радиографический контроль (рентген)</li>
+                <li>Капиллярный контроль (цветная дефектоскопия)</li>
+                <li>Магнитный контроль</li>
+                <li>Визуальный и измерительный контроль</li>
+                <li>Контроль качества сварных соединений</li>
+              </ul>
+            </div>
+
+            <div style={{ 
+              background: '#0f172a', 
+              padding: '2rem', 
+              borderRadius: '12px',
+              border: '1px solid #334155'
+            }}>
+              <h3 style={{ color: '#3b82f6', marginBottom: '1rem', fontSize: '1.3rem' }}>
+                🏗️ Экспертиза и диагностика
+              </h3>
+              <ul style={{ color: '#94a3b8', lineHeight: '2', paddingLeft: '1.5rem' }}>
+                <li>Экспертиза промышленной безопасности</li>
+                <li>Техническое диагностирование оборудования</li>
+                <li>Обследование строительных конструкций</li>
+                <li>Оценка технического состояния зданий</li>
+                <li>Определение остаточного ресурса</li>
+                <li>Тепловизионный контроль</li>
+              </ul>
+            </div>
+
+            <div style={{ 
+              background: '#0f172a', 
+              padding: '2rem', 
+              borderRadius: '12px',
+              border: '1px solid #334155'
+            }}>
+              <h3 style={{ color: '#3b82f6', marginBottom: '1rem', fontSize: '1.3rem' }}>
+                📐 Инженерные изыскания
+              </h3>
+              <ul style={{ color: '#94a3b8', lineHeight: '2', paddingLeft: '1.5rem' }}>
+                <li>Геодезические изыскания</li>
+                <li>Геологические изыскания</li>
+                <li>Экологические изыскания</li>
+                <li>Строительный контроль</li>
+                <li>Технический надзор</li>
+                <li>Контроль качества СМР</li>
+              </ul>
+            </div>
           </div>
         </div>
       </section>
