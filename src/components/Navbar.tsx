@@ -45,7 +45,6 @@ const Navbar: React.FC = () => {
         </div>
       </nav>
 
-      {/* Mobile Navigation */}
       <div className={`mobile-nav ${mobileMenuOpen ? 'active' : ''}`}>
         <ul>
           {navLinks.map((link: NavLink) => (

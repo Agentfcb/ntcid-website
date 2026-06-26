@@ -55,3 +55,35 @@ export interface Stat {
   number: string
   label: string
 }
+
+// ТИПЫ ДЛЯ ЗАЯВОК
+export type ApplicationStatus = 'pending' | 'processing' | 'completed' | 'rejected'
+
+export interface Application {
+  id: string
+  name: string
+  phone: string
+  email: string
+  serviceType: string
+  message: string
+  preferredDate: string
+  organization: string
+  status: ApplicationStatus
+  reply: string
+  createdAt: string
+  updatedAt: string
+}
+
+export const statusLabels: Record<ApplicationStatus, string> = {
+  pending: 'Новая',
+  processing: 'В обработке',
+  completed: 'Завершена',
+  rejected: 'Отклонена'
+}
+
+export const statusColors: Record<ApplicationStatus, string> = {
+  pending: '#f59e0b',
+  processing: '#3b82f6',
+  completed: '#10b981',
+  rejected: '#ef4444'
+}
