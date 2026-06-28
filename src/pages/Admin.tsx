@@ -3,7 +3,6 @@ import {
   getApplications, 
   updateApplicationStatus, 
   addReply, 
-  deleteApplication 
 } from '../utils/applications'
 import { Application, ApplicationStatus, statusLabels, statusColors } from '../types'
 
@@ -18,11 +17,9 @@ const Admin: React.FC = () => {
   const [password, setPassword] = useState('')
   const [authError, setAuthError] = useState('')
 
-  // Пароль для входа в админку (поменяй на свой!)
-  const ADMIN_PASSWORD = 'admin123'
+  const ADMIN_PASSWORD = '123'
 
   useEffect(() => {
-    // Проверяем авторизацию
     const auth = sessionStorage.getItem('admin_auth')
     if (auth === 'true') {
       setIsAuthenticated(true)
@@ -50,37 +47,41 @@ const Admin: React.FC = () => {
     sessionStorage.removeItem('admin_auth')
   }
 
-  const handleStatusChange = (id: string, status: ApplicationStatus) => {
-    updateApplicationStatus(id, status)
+  // Взять в работу
+  const handleProcessing = (id: string) => {
+    updateApplicationStatus(id, 'processing')
     loadApplications()
   }
 
+  // Отправить ответ → автоматически завершить
   const handleReply = (id: string) => {
     const reply = replyText[id] || ''
     if (reply.trim()) {
       addReply(id, reply)
+      updateApplicationStatus(id, 'completed')
       setReplyText({ ...replyText, [id]: '' })
       setEditingReply(null)
       loadApplications()
     }
   }
 
-  const handleDelete = (id: string) => {
-    if (window.confirm('Вы уверены что хотите удалить эту заявку?')) {
-      deleteApplication(id)
+  // Отклонить заявку
+  const handleReject = (id: string) => {
+    if (window.confirm('Вы уверены что хотите отклонить эту заявку?')) {
+      updateApplicationStatus(id, 'rejected')
       loadApplications()
     }
   }
 
+
+
   const getFilteredApplications = () => {
     let filtered = [...applications]
     
-    // Фильтр по статусу
     if (filterStatus !== 'all') {
       filtered = filtered.filter(app => app.status === filterStatus)
     }
 
-    // Сортировка
     filtered.sort((a, b) => {
       let comparison = 0
       
@@ -132,7 +133,7 @@ const Admin: React.FC = () => {
         justifyContent: 'center',
         padding: '20px'
       }}>
-        <div style={{ 
+        <div className="admin-login" style={{ 
           background: '#1e293b', 
           padding: '3rem', 
           borderRadius: '16px',
@@ -141,7 +142,7 @@ const Admin: React.FC = () => {
           width: '100%'
         }}>
           <h1 style={{ color: '#e2e8f0', marginBottom: '2rem', textAlign: 'center' }}>
-            🔐 Вход в админ-панель
+             Вход в админ-панель
           </h1>
           <form onSubmit={handleLogin}>
             <div style={{ marginBottom: '1.5rem' }}>
@@ -192,14 +193,14 @@ const Admin: React.FC = () => {
     <div style={{ minHeight: '100vh', background: '#0f172a', padding: '2rem' }}>
       <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
         {/* Header */}
-        <div style={{ 
+        <div className="admin-header" style={{ 
           display: 'flex', 
           justifyContent: 'space-between', 
           alignItems: 'center',
           marginBottom: '2rem'
         }}>
           <h1 style={{ color: '#e2e8f0', fontSize: '2rem' }}>
-            🛠️ Админ-панель заявок
+             Админ-панель заявок
           </h1>
           <button 
             onClick={handleLogout}
@@ -210,7 +211,7 @@ const Admin: React.FC = () => {
         </div>
 
         {/* Stats */}
-        <div style={{ 
+        <div className="admin-stats-grid" style={{ 
           display: 'grid', 
           gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
           gap: '1rem',
@@ -260,10 +261,21 @@ const Admin: React.FC = () => {
               {applications.filter(a => a.status === 'completed').length}
             </div>
           </div>
+          <div style={{ 
+            background: '#1e293b', 
+            padding: '1.5rem', 
+            borderRadius: '12px',
+            border: '1px solid #334155'
+          }}>
+            <div style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Отклонено</div>
+            <div style={{ color: '#ef4444', fontSize: '2rem', fontWeight: '700' }}>
+              {applications.filter(a => a.status === 'rejected').length}
+            </div>
+          </div>
         </div>
 
         {/* Filters */}
-        <div style={{ 
+        <div className="admin-filters" style={{ 
           background: '#1e293b', 
           padding: '1.5rem', 
           borderRadius: '12px',
@@ -353,15 +365,17 @@ const Admin: React.FC = () => {
             {filteredApplications.map((app) => (
               <div 
                 key={app.id}
+                className="admin-app-card"
                 style={{ 
                   background: '#1e293b', 
                   padding: '1.5rem', 
                   borderRadius: '12px',
-                  border: '1px solid #334155'
+                  border: `1px solid ${app.status === 'rejected' ? '#ef4444' : '#334155'}`,
+                  opacity: app.status === 'rejected' ? 0.7 : 1
                 }}
               >
                 {/* Header */}
-                <div style={{ 
+                <div className="admin-app-header" style={{ 
                   display: 'flex', 
                   justifyContent: 'space-between', 
                   alignItems: 'flex-start',
@@ -370,15 +384,16 @@ const Admin: React.FC = () => {
                   gap: '1rem'
                 }}>
                   <div>
-                    <h3 style={{ color: '#e2e8f0', marginBottom: '0.5rem' }}>
+                    <h3 className="admin-app-title" style={{ color: '#e2e8f0', marginBottom: '0.5rem' }}>
                       {app.name}
                     </h3>
                     <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>
                        {formatDate(app.createdAt)}
                     </p>
                   </div>
-                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
                     <span 
+                      className="admin-status-badge"
                       style={{ 
                         padding: '0.25rem 0.75rem',
                         background: statusColors[app.status],
@@ -390,35 +405,31 @@ const Admin: React.FC = () => {
                     >
                       {statusLabels[app.status]}
                     </span>
-                    <select
-                      value={app.status}
-                      onChange={(e) => handleStatusChange(app.id, e.target.value as ApplicationStatus)}
-                      style={{
-                        padding: '0.25rem 0.5rem',
-                        background: '#0f172a',
-                        border: '1px solid #334155',
-                        borderRadius: '8px',
-                        color: '#e2e8f0',
-                        fontSize: '0.85rem'
-                      }}
-                    >
-                      <option value="pending">Новая</option>
-                      <option value="processing">В обработке</option>
-                      <option value="completed">Завершена</option>
-                      <option value="rejected">Отклонена</option>
-                    </select>
+                    {app.status === 'pending' && (
+                      <button 
+                        onClick={() => handleProcessing(app.id)}
+                        className="btn"
+                        style={{ 
+                          padding: '0.25rem 0.75rem', 
+                          fontSize: '0.85rem',
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        Взять в работу
+                      </button>
+                    )}
                   </div>
                 </div>
 
                 {/* Info */}
-                <div style={{ 
+                <div className="admin-app-info" style={{ 
                   display: 'grid', 
                   gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
                   gap: '1rem',
                   marginBottom: '1rem'
                 }}>
                   <div>
-                    <div style={{ color: '#64748b', fontSize: '0.85rem' }}>📱 Телефон</div>
+                    <div style={{ color: '#64748b', fontSize: '0.85rem' }}> Телефон</div>
                     <a href={`tel:${app.phone}`} style={{ color: '#3b82f6', textDecoration: 'none' }}>
                       {app.phone}
                     </a>
@@ -431,17 +442,17 @@ const Admin: React.FC = () => {
                   </div>
                   {app.organization && (
                     <div>
-                      <div style={{ color: '#64748b', fontSize: '0.85rem' }}>🏢 Организация</div>
+                      <div style={{ color: '#64748b', fontSize: '0.85rem' }}> Организация</div>
                       <div style={{ color: '#e2e8f0' }}>{app.organization}</div>
                     </div>
                   )}
                   <div>
-                    <div style={{ color: '#64748b', fontSize: '0.85rem' }}>🔧 Услуга</div>
+                    <div style={{ color: '#64748b', fontSize: '0.85rem' }}> Услуга</div>
                     <div style={{ color: '#e2e8f0' }}>{getServiceName(app.serviceType)}</div>
                   </div>
                   {app.preferredDate && (
                     <div>
-                      <div style={{ color: '#64748b', fontSize: '0.85rem' }}>📅 Желаемая дата</div>
+                      <div style={{ color: '#64748b', fontSize: '0.85rem' }}> Желаемая дата</div>
                       <div style={{ color: '#e2e8f0' }}>
                         {new Date(app.preferredDate).toLocaleDateString('ru-RU')}
                       </div>
@@ -458,7 +469,7 @@ const Admin: React.FC = () => {
                     marginBottom: '1rem'
                   }}>
                     <div style={{ color: '#64748b', fontSize: '0.85rem', marginBottom: '0.5rem' }}>
-                      💬 Сообщение
+                       Сообщение
                     </div>
                     <div style={{ color: '#e2e8f0', whiteSpace: 'pre-wrap' }}>
                       {app.message}
@@ -476,69 +487,101 @@ const Admin: React.FC = () => {
                     border: '1px solid #3b82f6'
                   }}>
                     <div style={{ color: '#3b82f6', fontSize: '0.85rem', marginBottom: '0.5rem' }}>
-                      ✅ Ответ
+                       Ответ
                     </div>
                     <div style={{ color: '#e2e8f0', whiteSpace: 'pre-wrap' }}>
                       {app.reply}
+                    </div>
+                    <div style={{ color: '#64748b', fontSize: '0.75rem', marginTop: '0.5rem' }}>
+                      Отправлено: {formatDate(app.updatedAt)}
+                    </div>
+                  </div>
+                )}
+
+                {/* Rejected notice */}
+                {app.status === 'rejected' && (
+                  <div style={{ 
+                    background: '#451a1a',
+                    padding: '1rem',
+                    borderRadius: '8px',
+                    marginBottom: '1rem',
+                    border: '1px solid #ef4444'
+                  }}>
+                    <div style={{ color: '#ef4444', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                       Заявка отклонена
                     </div>
                   </div>
                 )}
 
                 {/* Actions */}
-                <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  {editingReply === app.id ? (
-                    <>
-                      <input
-                        type="text"
-                        value={replyText[app.id] || ''}
-                        onChange={(e) => setReplyText({ ...replyText, [app.id]: e.target.value })}
-                        placeholder="Введите ответ..."
-                        style={{
-                          flex: 1,
-                          padding: '0.5rem 1rem',
-                          background: '#0f172a',
-                          border: '1px solid #334155',
-                          borderRadius: '8px',
-                          color: '#e2e8f0',
-                          minWidth: '200px'
-                        }}
-                      />
-                      <button 
-                        onClick={() => handleReply(app.id)}
-                        className="btn"
-                        style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
-                      >
-                        Отправить
-                      </button>
-                      <button 
-                        onClick={() => setEditingReply(null)}
-                        className="btn btn-secondary"
-                        style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
-                      >
-                        Отмена
-                      </button>
-                    </>
+                <div className="admin-actions" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  {/* Если уже есть ответ или отклонена - показываем статус */}
+                  {app.reply ? (
+                    <div style={{ color: '#10b981', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                       Заявка завершена
+                    </div>
+                  ) : app.status === 'rejected' ? (
+                    <div style={{ color: '#ef4444', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                       Заявка отклонена
+                    </div>
                   ) : (
                     <>
-                      <button 
-                        onClick={() => setEditingReply(app.id)}
-                        className="btn"
-                        style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
-                      >
-                         Ответить
-                      </button>
-                      <button 
-                        onClick={() => handleDelete(app.id)}
-                        className="btn btn-secondary"
-                        style={{ 
-                          padding: '0.5rem 1rem', 
-                          fontSize: '0.9rem',
-                          borderColor: '#ef4444',
-                          color: '#ef4444'
-                        }}
-                      >
-                        🗑️ Удалить
-                      </button>
+                      {editingReply === app.id ? (
+                        <>
+                          <input
+                            className="admin-reply-input"
+                            type="text"
+                            value={replyText[app.id] || ''}
+                            onChange={(e) => setReplyText({ ...replyText, [app.id]: e.target.value })}
+                            placeholder="Введите ответ клиенту..."
+                            style={{
+                              flex: 1,
+                              padding: '0.5rem 1rem',
+                              background: '#0f172a',
+                              border: '1px solid #334155',
+                              borderRadius: '8px',
+                              color: '#e2e8f0',
+                              minWidth: '200px'
+                            }}
+                          />
+                          <button 
+                            onClick={() => handleReply(app.id)}
+                            className="btn"
+                            style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
+                          >
+                            Отправить и завершить
+                          </button>
+                          <button 
+                            onClick={() => setEditingReply(null)}
+                            className="btn btn-secondary"
+                            style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
+                          >
+                            Отмена
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <button 
+                            onClick={() => setEditingReply(app.id)}
+                            className="btn"
+                            style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
+                          >
+                             Ответить
+                          </button>
+                          <button 
+                            onClick={() => handleReject(app.id)}
+                            className="btn"
+                            style={{ 
+                              padding: '0.5rem 1rem', 
+                              fontSize: '0.9rem',
+                              background: '#ef4444',
+                              borderColor: '#ef4444'
+                            }}
+                          >
+                             Отклонить
+                          </button>
+                        </>
+                      )}
                     </>
                   )}
                 </div>
