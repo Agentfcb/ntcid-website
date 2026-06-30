@@ -4,6 +4,9 @@ import ServiceCard from '../components/ServiceCard'
 import AdvantageCard from '../components/AdvantageCard'
 import { Service, Advantage, Stat } from '../types'
 
+// Импортируем фоновое изображение
+import heroBg from '../assets/images/hero-bg.png'
+
 // Импортируем все нужные иконки
 import inspectionIcon from '../assets/icons/inspection.png'
 import expertiseIcon from '../assets/icons/expertise.png'
@@ -64,19 +67,26 @@ const Home: React.FC = () => {
 
   return (
     <>
-      <section className="hero">
-        <div className="container hero-content">
-          <h1>НТЦ «НКИД»</h1>
-          <p>
-            Научно-технический центр «Неразрушающий контроль и диагностика» во Владимире. 
-            Технические испытания, анализ, исследования и экспертиза.
-          </p>
-          <div>
-            <Link to="/contact" className="btn">Связаться с нами</Link>
-            <Link to="/services" className="btn btn-secondary">Наши услуги</Link>
-          </div>
-        </div>
-      </section>
+<section 
+  className="hero"
+  style={{
+    backgroundImage: `url(${heroBg})`,
+    backgroundPosition: 'center right',
+    backgroundRepeat: 'no-repeat'
+  }}
+>
+  <div className="container hero-content">
+    <h1>НТЦ «НКИД»</h1>
+    <p>
+      Научно-технический центр «Неразрушающий контроль и диагностика» во Владимире. 
+      Технические испытания, анализ, исследования и экспертиза.
+    </p>
+    <div>
+      <Link to="/contact" className="btn">Связаться с нами</Link>
+      <Link to="/services" className="btn btn-secondary">Наши услуги</Link>
+    </div>
+  </div>
+</section>
 
       <section className="section">
         <div className="container">
