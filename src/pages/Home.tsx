@@ -65,7 +65,6 @@ const Home: React.FC = () => {
     { number: '100%', label: 'Гарантия качества' }
   ]
 
-  
   return (
     <>
 <section 

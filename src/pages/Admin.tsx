@@ -6,7 +6,6 @@ import {
 } from '../utils/applications'
 import { Application, ApplicationStatus, statusLabels, statusColors } from '../types'
 
-
 const Admin: React.FC = () => {
   const navigate = useNavigate()
   const [applications, setApplications] = useState<Application[]>([])
