@@ -1,18 +1,17 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { 
   getApplications, 
   updateApplicationStatus, 
-  addReply, 
 } from '../utils/applications'
 import { Application, ApplicationStatus, statusLabels, statusColors } from '../types'
 
 const Admin: React.FC = () => {
+  const navigate = useNavigate()
   const [applications, setApplications] = useState<Application[]>([])
   const [filterStatus, setFilterStatus] = useState<ApplicationStatus | 'all'>('all')
   const [sortBy, setSortBy] = useState<'date' | 'status' | 'name'>('date')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
-  const [replyText, setReplyText] = useState<Record<string, string>>({})
-  const [editingReply, setEditingReply] = useState<string | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [password, setPassword] = useState('')
   const [authError, setAuthError] = useState('')
@@ -42,9 +41,11 @@ const Admin: React.FC = () => {
     }
   }
 
+  // Выход → возвращает на главную страницу сайта
   const handleLogout = () => {
     setIsAuthenticated(false)
     sessionStorage.removeItem('admin_auth')
+    navigate('/')
   }
 
   // Взять в работу
@@ -53,16 +54,10 @@ const Admin: React.FC = () => {
     loadApplications()
   }
 
-  // Отправить ответ → автоматически завершить
-  const handleReply = (id: string) => {
-    const reply = replyText[id] || ''
-    if (reply.trim()) {
-      addReply(id, reply)
-      updateApplicationStatus(id, 'completed')
-      setReplyText({ ...replyText, [id]: '' })
-      setEditingReply(null)
-      loadApplications()
-    }
+  // Завершить заявку (без ответа, просто помечаем что обработали)
+  const handleComplete = (id: string) => {
+    updateApplicationStatus(id, 'completed')
+    loadApplications()
   }
 
   // Отклонить заявку
@@ -73,7 +68,13 @@ const Admin: React.FC = () => {
     }
   }
 
-
+  // Очистить все заявки
+  const handleClearAll = () => {
+    if (window.confirm('Вы уверены что хотите удалить ВСЕ заявки? Это действие нельзя отменить!')) {
+      localStorage.removeItem('ntcid_applications')
+      loadApplications()
+    }
+  }
 
   const getFilteredApplications = () => {
     let filtered = [...applications]
@@ -142,7 +143,7 @@ const Admin: React.FC = () => {
           width: '100%'
         }}>
           <h1 style={{ color: '#e2e8f0', marginBottom: '2rem', textAlign: 'center' }}>
-             Вход в админ-панель
+            Вход в админ-панель
           </h1>
           <form onSubmit={handleLogin}>
             <div style={{ marginBottom: '1.5rem' }}>
@@ -166,19 +167,11 @@ const Admin: React.FC = () => {
               />
             </div>
             {authError && (
-              <div style={{ 
-                color: '#ef4444', 
-                marginBottom: '1rem',
-                textAlign: 'center'
-              }}>
+              <div style={{ color: '#ef4444', marginBottom: '1rem', textAlign: 'center' }}>
                 {authError}
               </div>
             )}
-            <button 
-              type="submit" 
-              className="btn"
-              style={{ width: '100%' }}
-            >
+            <button type="submit" className="btn" style={{ width: '100%' }}>
               Войти
             </button>
           </form>
@@ -192,83 +185,80 @@ const Admin: React.FC = () => {
   return (
     <div style={{ minHeight: '100vh', background: '#0f172a', padding: '2rem' }}>
       <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        
         {/* Header */}
         <div className="admin-header" style={{ 
           display: 'flex', 
           justifyContent: 'space-between', 
           alignItems: 'center',
-          marginBottom: '2rem'
+          marginBottom: '2rem',
+          flexWrap: 'wrap',
+          gap: '1rem'
         }}>
           <h1 style={{ color: '#e2e8f0', fontSize: '2rem' }}>
-             Админ-панель заявок
+            Админ-панель заявок
           </h1>
-          <button 
-            onClick={handleLogout}
-            className="btn btn-secondary"
-          >
-            Выйти
-          </button>
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <button 
+              onClick={handleClearAll}
+              className="btn"
+              style={{ 
+                padding: '0.5rem 1rem', 
+                fontSize: '0.9rem',
+                background: 'transparent',
+                border: '1px solid #ef4444',
+                color: '#ef4444'
+              }}
+            >
+              Очистить все
+            </button>
+            <button 
+              onClick={handleLogout}
+              className="btn"
+              style={{ 
+                padding: '0.5rem 1rem', 
+                fontSize: '0.9rem'
+              }}
+            >
+              Вернуться на сайт
+            </button>
+          </div>
         </div>
 
         {/* Stats */}
         <div className="admin-stats-grid" style={{ 
           display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
           gap: '1rem',
           marginBottom: '2rem'
         }}>
-          <div style={{ 
-            background: '#1e293b', 
-            padding: '1.5rem', 
-            borderRadius: '12px',
-            border: '1px solid #334155'
-          }}>
+          <div style={{ background: '#1e293b', padding: '1.5rem', borderRadius: '12px', border: '1px solid #334155' }}>
             <div style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Всего заявок</div>
-            <div style={{ color: '#e2e8f0', fontSize: '2rem', fontWeight: '700' }}>
+            <div className="admin-stats-number" style={{ color: '#e2e8f0', fontSize: '2rem', fontWeight: '700' }}>
               {applications.length}
             </div>
           </div>
-          <div style={{ 
-            background: '#1e293b', 
-            padding: '1.5rem', 
-            borderRadius: '12px',
-            border: '1px solid #334155'
-          }}>
+          <div style={{ background: '#1e293b', padding: '1.5rem', borderRadius: '12px', border: '1px solid #334155' }}>
             <div style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Новых</div>
-            <div style={{ color: '#f59e0b', fontSize: '2rem', fontWeight: '700' }}>
+            <div className="admin-stats-number" style={{ color: '#f59e0b', fontSize: '2rem', fontWeight: '700' }}>
               {applications.filter(a => a.status === 'pending').length}
             </div>
           </div>
-          <div style={{ 
-            background: '#1e293b', 
-            padding: '1.5rem', 
-            borderRadius: '12px',
-            border: '1px solid #334155'
-          }}>
+          <div style={{ background: '#1e293b', padding: '1.5rem', borderRadius: '12px', border: '1px solid #334155' }}>
             <div style={{ color: '#94a3b8', fontSize: '0.9rem' }}>В обработке</div>
-            <div style={{ color: '#3b82f6', fontSize: '2rem', fontWeight: '700' }}>
+            <div className="admin-stats-number" style={{ color: '#3b82f6', fontSize: '2rem', fontWeight: '700' }}>
               {applications.filter(a => a.status === 'processing').length}
             </div>
           </div>
-          <div style={{ 
-            background: '#1e293b', 
-            padding: '1.5rem', 
-            borderRadius: '12px',
-            border: '1px solid #334155'
-          }}>
+          <div style={{ background: '#1e293b', padding: '1.5rem', borderRadius: '12px', border: '1px solid #334155' }}>
             <div style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Завершено</div>
-            <div style={{ color: '#10b981', fontSize: '2rem', fontWeight: '700' }}>
+            <div className="admin-stats-number" style={{ color: '#10b981', fontSize: '2rem', fontWeight: '700' }}>
               {applications.filter(a => a.status === 'completed').length}
             </div>
           </div>
-          <div style={{ 
-            background: '#1e293b', 
-            padding: '1.5rem', 
-            borderRadius: '12px',
-            border: '1px solid #334155'
-          }}>
+          <div style={{ background: '#1e293b', padding: '1.5rem', borderRadius: '12px', border: '1px solid #334155' }}>
             <div style={{ color: '#94a3b8', fontSize: '0.9rem' }}>Отклонено</div>
-            <div style={{ color: '#ef4444', fontSize: '2rem', fontWeight: '700' }}>
+            <div className="admin-stats-number" style={{ color: '#ef4444', fontSize: '2rem', fontWeight: '700' }}>
               {applications.filter(a => a.status === 'rejected').length}
             </div>
           </div>
@@ -308,7 +298,6 @@ const Admin: React.FC = () => {
               <option value="rejected">Отклонены</option>
             </select>
           </div>
-
           <div>
             <label style={{ display: 'block', marginBottom: '0.5rem', color: '#94a3b8', fontSize: '0.9rem' }}>
               Сортировка
@@ -329,7 +318,6 @@ const Admin: React.FC = () => {
               <option value="status">По статусу</option>
             </select>
           </div>
-
           <div>
             <label style={{ display: 'block', marginBottom: '0.5rem', color: '#94a3b8', fontSize: '0.9rem' }}>
               Порядок
@@ -353,12 +341,8 @@ const Admin: React.FC = () => {
 
         {/* Applications List */}
         {filteredApplications.length === 0 ? (
-          <div style={{ 
-            textAlign: 'center', 
-            padding: '3rem',
-            color: '#94a3b8'
-          }}>
-            <p style={{ fontSize: '1.2rem' }}> Заявок пока нет</p>
+          <div style={{ textAlign: 'center', padding: '3rem', color: '#94a3b8' }}>
+            <p style={{ fontSize: '1.2rem' }}>Заявок пока нет</p>
           </div>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -370,56 +354,43 @@ const Admin: React.FC = () => {
                   background: '#1e293b', 
                   padding: '1.5rem', 
                   borderRadius: '12px',
-                  border: `1px solid ${app.status === 'rejected' ? '#ef4444' : '#334155'}`,
-                  opacity: app.status === 'rejected' ? 0.7 : 1
+                  border: `1px solid ${app.status === 'rejected' ? '#ef4444' : app.status === 'completed' ? '#10b981' : '#334155'}`,
+                  opacity: app.status === 'rejected' ? 0.6 : app.status === 'completed' ? 0.8 : 1
                 }}
               >
                 {/* Header */}
-                <div className="admin-app-header" style={{ 
-                  display: 'flex', 
-                  justifyContent: 'space-between', 
-                  alignItems: 'flex-start',
-                  marginBottom: '1rem',
-                  flexWrap: 'wrap',
-                  gap: '1rem'
-                }}>
-                  <div>
-                    <h3 className="admin-app-title" style={{ color: '#e2e8f0', marginBottom: '0.5rem' }}>
-                      {app.name}
-                    </h3>
-                    <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>
-                       {formatDate(app.createdAt)}
-                    </p>
-                  </div>
-                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                    <span 
-                      className="admin-status-badge"
-                      style={{ 
-                        padding: '0.25rem 0.75rem',
-                        background: statusColors[app.status],
-                        color: 'white',
-                        borderRadius: '20px',
-                        fontSize: '0.85rem',
-                        fontWeight: '500'
-                      }}
-                    >
-                      {statusLabels[app.status]}
-                    </span>
-                    {app.status === 'pending' && (
-                      <button 
-                        onClick={() => handleProcessing(app.id)}
-                        className="btn"
-                        style={{ 
-                          padding: '0.25rem 0.75rem', 
-                          fontSize: '0.85rem',
-                          whiteSpace: 'nowrap'
-                        }}
-                      >
-                        Взять в работу
-                      </button>
-                    )}
-                  </div>
-                </div>
+<div className="admin-app-header" style={{ 
+  display: 'flex', 
+  justifyContent: 'space-between', 
+  alignItems: 'flex-start',
+  marginBottom: '1rem',
+  flexWrap: 'wrap',
+  gap: '1rem'
+}}>
+  <div>
+    <h3 className="admin-app-title" style={{ color: '#e2e8f0', marginBottom: '0.5rem' }}>
+      {app.name}
+    </h3>
+    <p style={{ color: '#94a3b8', fontSize: '0.9rem' }}>
+      {formatDate(app.createdAt)}
+    </p>
+  </div>
+  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+    <span 
+      className="admin-status-badge"
+      style={{ 
+        padding: '0.25rem 0.75rem',
+        background: statusColors[app.status],
+        color: 'white',
+        borderRadius: '20px',
+        fontSize: '0.85rem',
+        fontWeight: '500'
+      }}
+    >
+      {statusLabels[app.status]}
+    </span>
+  </div>
+</div>
 
                 {/* Info */}
                 <div className="admin-app-info" style={{ 
@@ -429,30 +400,30 @@ const Admin: React.FC = () => {
                   marginBottom: '1rem'
                 }}>
                   <div>
-                    <div style={{ color: '#64748b', fontSize: '0.85rem' }}> Телефон</div>
+                    <div style={{ color: '#64748b', fontSize: '0.85rem' }}>Телефон</div>
                     <a href={`tel:${app.phone}`} style={{ color: '#3b82f6', textDecoration: 'none' }}>
                       {app.phone}
                     </a>
                   </div>
                   <div>
-                    <div style={{ color: '#64748b', fontSize: '0.85rem' }}> Email</div>
+                    <div style={{ color: '#64748b', fontSize: '0.85rem' }}>Email</div>
                     <a href={`mailto:${app.email}`} style={{ color: '#3b82f6', textDecoration: 'none' }}>
                       {app.email}
                     </a>
                   </div>
                   {app.organization && (
                     <div>
-                      <div style={{ color: '#64748b', fontSize: '0.85rem' }}> Организация</div>
+                      <div style={{ color: '#64748b', fontSize: '0.85rem' }}>Организация</div>
                       <div style={{ color: '#e2e8f0' }}>{app.organization}</div>
                     </div>
                   )}
                   <div>
-                    <div style={{ color: '#64748b', fontSize: '0.85rem' }}> Услуга</div>
+                    <div style={{ color: '#64748b', fontSize: '0.85rem' }}>Услуга</div>
                     <div style={{ color: '#e2e8f0' }}>{getServiceName(app.serviceType)}</div>
                   </div>
                   {app.preferredDate && (
                     <div>
-                      <div style={{ color: '#64748b', fontSize: '0.85rem' }}> Желаемая дата</div>
+                      <div style={{ color: '#64748b', fontSize: '0.85rem' }}>Желаемая дата</div>
                       <div style={{ color: '#e2e8f0' }}>
                         {new Date(app.preferredDate).toLocaleDateString('ru-RU')}
                       </div>
@@ -469,7 +440,7 @@ const Admin: React.FC = () => {
                     marginBottom: '1rem'
                   }}>
                     <div style={{ color: '#64748b', fontSize: '0.85rem', marginBottom: '0.5rem' }}>
-                       Сообщение
+                      Сообщение клиента
                     </div>
                     <div style={{ color: '#e2e8f0', whiteSpace: 'pre-wrap' }}>
                       {app.message}
@@ -477,114 +448,83 @@ const Admin: React.FC = () => {
                   </div>
                 )}
 
-                {/* Reply */}
-                {app.reply && (
-                  <div style={{ 
-                    background: '#1e3a5f',
-                    padding: '1rem',
-                    borderRadius: '8px',
-                    marginBottom: '1rem',
-                    border: '1px solid #3b82f6'
-                  }}>
-                    <div style={{ color: '#3b82f6', fontSize: '0.85rem', marginBottom: '0.5rem' }}>
-                       Ответ
-                    </div>
-                    <div style={{ color: '#e2e8f0', whiteSpace: 'pre-wrap' }}>
-                      {app.reply}
-                    </div>
-                    <div style={{ color: '#64748b', fontSize: '0.75rem', marginTop: '0.5rem' }}>
-                      Отправлено: {formatDate(app.updatedAt)}
-                    </div>
-                  </div>
-                )}
+{/* Actions */}
+<div className="admin-actions" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+  {/* Завершённая заявка */}
+  {app.status === 'completed' && (
+    <div style={{ 
+      color: '#10b981', 
+      fontSize: '0.9rem', 
+      display: 'flex', 
+      alignItems: 'center', 
+      gap: '0.5rem',
+      padding: '0.5rem 0'
+    }}>
+      Заявка завершена
+    </div>
+  )}
 
-                {/* Rejected notice */}
-                {app.status === 'rejected' && (
-                  <div style={{ 
-                    background: '#451a1a',
-                    padding: '1rem',
-                    borderRadius: '8px',
-                    marginBottom: '1rem',
-                    border: '1px solid #ef4444'
-                  }}>
-                    <div style={{ color: '#ef4444', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                       Заявка отклонена
-                    </div>
-                  </div>
-                )}
+  {/* Отклонённая заявка */}
+  {app.status === 'rejected' && (
+    <div style={{ 
+      color: '#ef4444', 
+      fontSize: '0.9rem', 
+      display: 'flex', 
+      alignItems: 'center', 
+      gap: '0.5rem',
+      padding: '0.5rem 0'
+    }}>
+      Заявка отклонена
+    </div>
+  )}
 
-                {/* Actions */}
-                <div className="admin-actions" style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  {/* Если уже есть ответ или отклонена - показываем статус */}
-                  {app.reply ? (
-                    <div style={{ color: '#10b981', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                       Заявка завершена
-                    </div>
-                  ) : app.status === 'rejected' ? (
-                    <div style={{ color: '#ef4444', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                       Заявка отклонена
-                    </div>
-                  ) : (
-                    <>
-                      {editingReply === app.id ? (
-                        <>
-                          <input
-                            className="admin-reply-input"
-                            type="text"
-                            value={replyText[app.id] || ''}
-                            onChange={(e) => setReplyText({ ...replyText, [app.id]: e.target.value })}
-                            placeholder="Введите ответ клиенту..."
-                            style={{
-                              flex: 1,
-                              padding: '0.5rem 1rem',
-                              background: '#0f172a',
-                              border: '1px solid #334155',
-                              borderRadius: '8px',
-                              color: '#e2e8f0',
-                              minWidth: '200px'
-                            }}
-                          />
-                          <button 
-                            onClick={() => handleReply(app.id)}
-                            className="btn"
-                            style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
-                          >
-                            Отправить и завершить
-                          </button>
-                          <button 
-                            onClick={() => setEditingReply(null)}
-                            className="btn btn-secondary"
-                            style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
-                          >
-                            Отмена
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          <button 
-                            onClick={() => setEditingReply(app.id)}
-                            className="btn"
-                            style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
-                          >
-                             Ответить
-                          </button>
-                          <button 
-                            onClick={() => handleReject(app.id)}
-                            className="btn"
-                            style={{ 
-                              padding: '0.5rem 1rem', 
-                              fontSize: '0.9rem',
-                              background: '#ef4444',
-                              borderColor: '#ef4444'
-                            }}
-                          >
-                             Отклонить
-                          </button>
-                        </>
-                      )}
-                    </>
-                  )}
-                </div>
+  {/* Новая заявка - только "Взять в работу" */}
+  {app.status === 'pending' && (
+    <button 
+      onClick={() => handleProcessing(app.id)}
+      className="btn"
+      style={{ 
+        padding: '0.5rem 1.5rem', 
+        fontSize: '0.9rem',
+        background: '#3b82f6',
+        borderColor: '#3b82f6'
+      }}
+    >
+      Взять в работу
+    </button>
+  )}
+
+  {/* В обработке - кнопки "Завершить" и "Отклонить" */}
+  {app.status === 'processing' && (
+    <>
+      <button 
+        onClick={() => handleComplete(app.id)}
+        className="btn"
+        style={{ 
+          padding: '0.5rem 1.5rem', 
+          fontSize: '0.9rem',
+          background: '#10b981',
+          borderColor: '#10b981'
+        }}
+      >
+        Завершить заявку
+      </button>
+      <button 
+        onClick={() => handleReject(app.id)}
+        className="btn"
+        style={{ 
+          padding: '0.5rem 1.5rem', 
+          fontSize: '0.9rem',
+          background: 'transparent',
+          border: '1px solid #ef4444',
+          color: '#ef4444'
+        }}
+      >
+        Отклонить
+      </button>
+    </>
+  )}
+</div>
               </div>
             ))}
           </div>
