@@ -162,7 +162,7 @@ body {
   margin-top: 80px;
   padding: 120px 0;
   background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.9) 100%);
-  background-size: 100% 85% !important;  /* !important переопределит inline */
+  background-size: 100% 95% !important;  /* !important переопределит inline */
   background-position: center;
   background-repeat: no-repeat;
   position: relative;
